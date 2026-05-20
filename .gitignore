@@ -34,3 +34,6 @@ venv.bak/
 # SQLite databases (Wait: for this project, we want to keep merged_car_listings.db in repo as it is static data, but ignore instance databases)
 instance/
 website/*.db
+
+# Large scraped assets
+website/static/car_images/
