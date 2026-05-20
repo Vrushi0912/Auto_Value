@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+pandas
+numpy
+scikit-learn
+requests
+gunicorn
+python-dotenv

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Blogs - AutoValue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-header {
+            padding: 5rem 5% 3rem;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #111;
+        }
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            color: #333;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #5cb85c;
+            color: #ffffff;
+            border-color: #5cb85c;
+        }
+    </style>
+</head>
+<body style="background-color: #ffffff;">
+    <nav class="dashboard-nav">
+        <div class="logo-center">
+            <span class="logo-auto">Auto</span><span class="logo-value">Value</span>
+        </div>
+        <ul class="nav-links-dash">
+            <li><a href="/landing-page#popular">Popular</a></li>
+            <li><a href="/landing-page#search">Search</a></li>
+            <li><a href="/landing-page#services">Services</a></li>
+            <li><a href="/landing-page#predict">Price</a></li>
+            <li><a href="/car-blogs" style="color:#5cb85c; font-weight:600;">Blogs</a></li>
+        </ul>
+        <div class="nav-user" style="position: relative;">
+            <button class="user-btn" onclick="document.getElementById('profilePopup').style.display = document.getElementById('profilePopup').style.display === 'block' ? 'none' : 'block';">
+                <i class="fa-solid fa-user"></i>
+            </button>
+            <div id="profilePopup" class="user-profile-popup" style="position: relative;">
+                <span style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 1.5rem; color: #666;" onclick="document.getElementById('profilePopup').style.display = 'none'">&times;</span>
+                <h3 style="margin-bottom: 1rem; color: #111;">User Profile</h3>
+                <hr>
+                <p style="color: #444; font-size: 0.9rem; margin-bottom: 0.5rem;">Full Name - {{ user.full_name if user else 'Maaz Shaikh' }}</p>
+                <p style="color: #444; font-size: 0.9rem; margin-bottom: 1rem;">Email Address - {{ user.email if user else 'abc@gmail.com' }}</p>
+                <hr>
+                <h4 style="margin-bottom: 1rem; color: #111;">Update Profile</h4>
+                <input type="text" id="updateFullNameInput" class="white-input" placeholder="Update Full Name" style="margin-bottom: 1rem; padding: 0.5rem;" value="{{ user.full_name if user else '' }}">
+                <button class="btn-solid-green w-100" style="padding: 0.5rem; margin-bottom: 0.5rem;" onclick="updateProfile()">Update Profile</button>
+                <a href="/forgot-password" class="btn-solid-green w-100" style="display:block; text-align:center; padding: 0.5rem; margin-bottom: 1rem;">Forgot / Update Password?</a>
+                <hr>
+                <a href="/logout" class="btn-solid-green w-100" style="display:block; text-align:center; padding: 0.5rem;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>Car <span style="color:#5cb85c;">Market Blogs</span></h1>
+        <p style="color: #666; font-size: 1.1rem;">Expert analysis, news, and trends from top automotive sources.</p>
+    </div>
+
+    <section class="section" style="padding-top: 2rem;">
+        <div class="filters">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Autocar India</button>
+            <button class="filter-btn">RushLane</button>
+            <button class="filter-btn">AutoX</button>
+        </div>
+
+        <div class="blog-grid" style="max-width: 1200px; margin: 0 auto;">
+            {% if all_blogs and all_blogs|length > 0 %}
+                {% for blog in all_blogs %}
+                <div class="white-container blog-card" data-source="{{ blog.source|lower }}" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                    <div style="height: 200px; background: #eee url('{{ blog.image_url if blog.image_url else '' }}') center/cover"></div>
+                    <div style="padding: 1.5rem;">
+                        <span style="background: #e8f5e9; color: #4cae4c; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">{{ blog.source|default('AutoNews') }}</span>
+                        <h4 style="margin: 1rem 0 0.5rem; color: #111; font-size: 1.2rem;">{{ blog.title }}</h4>
+                        <p style="color: #666; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">{{ blog.summary|default('Click to read more about this topic.') }}</p>
+                        <a href="{{ blog.url }}" target="_blank" style="color: #5cb85c; text-decoration: none; font-weight: 600;">Read More <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="white-container" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <div style="height: 200px; background: url('/static/blog_sierra_ev.png') center/cover"></div>
+                    <div style="padding: 1.5rem;">
+                        <span style="background: #e8f5e9; color: #4cae4c; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">Autocar India</span>
+                        <h4 style="margin: 1rem 0 0.5rem; color: #111; font-size: 1.2rem;">Tata Sierra EV: The Most Anticipated Electric SUV</h4>
+                        <p style="color: #666; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">Generating significant buzz for its expected lounge seating, glass roof, and long range up to 550 km. It is set to redefine premium electric mobility.</p>
+                        <a href="https://www.autocarindia.com" target="_blank" style="color: #5cb85c; text-decoration: none; font-weight: 600;">Read More <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="white-container" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <div style="height: 200px; background: url('/static/blog_suv_dominance.png') center/cover"></div>
+                    <div style="padding: 1.5rem;">
+                        <span style="background: #e8f5e9; color: #4cae4c; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">RushLane</span>
+                        <h4 style="margin: 1rem 0 0.5rem; color: #111; font-size: 1.2rem;">SUV Dominance Continues in 2026</h4>
+                        <p style="color: #666; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">The SUV segment continues to be the fastest-growing space in India, with manufacturers prioritizing new models and facelifts over traditional hatchbacks.</p>
+                        <a href="https://www.rushlane.com" target="_blank" style="color: #5cb85c; text-decoration: none; font-weight: 600;">Read More <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="white-container" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <div style="height: 200px; background: url('/static/blog_ev_infra.png') center/cover"></div>
+                    <div style="padding: 1.5rem;">
+                        <span style="background: #e8f5e9; color: #4cae4c; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">AutoX</span>
+                        <h4 style="margin: 1rem 0 0.5rem; color: #111; font-size: 1.2rem;">EV Infrastructure: Moving to Mainstream</h4>
+                        <p style="color: #666; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">Electric vehicles are moving from niche to mainstream as charging networks expand rapidly across India, solving range anxiety for buyers.</p>
+                        <a href="https://www.autox.com" target="_blank" style="color: #5cb85c; text-decoration: none; font-weight: 600;">Read More <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="white-container" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <div style="height: 200px; background: url('/static/blog_hybrid_tech.png') center/cover"></div>
+                    <div style="padding: 1.5rem;">
+                        <span style="background: #e8f5e9; color: #4cae4c; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">IndianAutosBlog</span>
+                        <h4 style="margin: 1rem 0 0.5rem; color: #111; font-size: 1.2rem;">Next-Gen Hybrid Tech Coming to India</h4>
+                        <p style="color: #666; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">A look at the upcoming hybrid models expected to launch in India, combining exceptional fuel efficiency with strong performance.</p>
+                        <a href="https://www.google.com/search?q=IndianAutosBlog" target="_blank" style="color: #5cb85c; text-decoration: none; font-weight: 600;">Read More <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer class="solid-footer">
+        <p>AutoValue | All Rights Reserved &copy; 2026</p>
+    </footer>
+    
+    <script>
+        function updateProfile() {
+            const newName = document.getElementById('updateFullNameInput').value;
+            if (!newName || newName.length <= 5) {
+                alert('Full Name should be more than 5 characters.');
+                return;
+            }
+            
+            fetch('/update-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ full_name: newName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Reload to see the updated name
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const cards = document.querySelectorAll('.blog-card');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const filter = btn.textContent.trim().toLowerCase();
+                    
+                    cards.forEach(card => {
+                        const source = card.getAttribute('data-source') || '';
+                        if (filter === 'all' || source.includes(filter) || filter.includes(source)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

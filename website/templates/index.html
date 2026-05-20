@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoValue - Get the Right Price</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Simple Navbar -->
+    <nav class="simple-nav">
+        <div class="logo-center">
+            <span class="logo-auto">Auto</span><span class="logo-value">Value</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="welcome-container">
+        <div class="welcome-text">
+            <h2>Welcome To</h2>
+            <h1><span class="logo-auto">Auto</span><span class="logo-value">Value</span> - Get The Right Price</h1>
+            <p>Discover The Best Deals On Cars From Top Dealerships.<br>
+            Find Your Dream Car Today!<br>
+            Search, Compare, And Buy With Confidence.</p>
+        </div>
+        <div class="welcome-buttons">
+            <a href="/login" class="btn-solid-green">Login</a>
+            <a href="/sign-up" class="btn-solid-green">Sign Up</a>
+        </div>
+    </main>
+
+    <!-- Solid Green Footer -->
+    <footer class="solid-footer">
+        <p>AutoValue | All Rights Reserved &copy; 2026</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - AutoValue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="simple-nav">
+        <div class="logo-center">
+            <span class="logo-auto">Auto</span><span class="logo-value">Value</span>
+        </div>
+    </nav>
+
+    <main class="auth-page">
+        <div class="auth-box">
+            <h2>Verify Email</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div style="background: {% if category == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if category == 'success' %}#155724{% else %}#721c24{% endif %}; padding: 0.5rem; margin-bottom: 1rem; border-radius: 4px; font-size: 0.9rem;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/verify-email">
+                <input type="text" name="otp" class="auth-input" placeholder="Enter OTP" required>
+                <button type="submit" class="auth-btn">Submit</button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="solid-footer">
+        <p>AutoValue | All Rights Reserved &copy; 2026</p>
+    </footer>
+</body>
+</html>

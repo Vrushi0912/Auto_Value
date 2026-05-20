@@ -1,0 +1,36 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+instance/
+.pytest_cache/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# SQLite databases (Wait: for this project, we want to keep merged_car_listings.db in repo as it is static data, but ignore instance databases)
+instance/
+website/*.db

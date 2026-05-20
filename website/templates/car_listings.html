@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - AutoValue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background-color: #ffffff;">
+    <nav class="dashboard-nav">
+        <div class="logo-center">
+            <span class="logo-auto">Auto</span><span class="logo-value">Value</span>
+        </div>
+        <ul class="nav-links-dash">
+            <li><a href="/landing-page#popular">Popular</a></li>
+            <li><a href="/landing-page#search">Search</a></li>
+            <li><a href="/landing-page#services">Services</a></li>
+            <li><a href="/landing-page#predict">Price</a></li>
+            <li><a href="/car-blogs">Blogs</a></li>
+        </ul>
+        <div class="nav-user" style="position: relative;">
+            <button class="user-btn" onclick="document.getElementById('profilePopup').style.display = document.getElementById('profilePopup').style.display === 'block' ? 'none' : 'block';">
+                <i class="fa-solid fa-user"></i>
+            </button>
+            <div id="profilePopup" class="user-profile-popup" style="position: relative;">
+                <span style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 1.5rem; color: #666;" onclick="document.getElementById('profilePopup').style.display = 'none'">&times;</span>
+                <h3 style="margin-bottom: 1rem; color: #111;">User Profile</h3>
+                <hr>
+                <p style="color: #444; font-size: 0.9rem; margin-bottom: 0.5rem;">Full Name - {{ user.full_name if user else 'Maaz Shaikh' }}</p>
+                <p style="color: #444; font-size: 0.9rem; margin-bottom: 1rem;">Email Address - {{ user.email if user else 'abc@gmail.com' }}</p>
+                <hr>
+                <h4 style="margin-bottom: 1rem; color: #111;">Update Profile</h4>
+                <input type="text" id="updateFullNameInput" class="white-input" placeholder="Update Full Name" style="margin-bottom: 1rem; padding: 0.5rem;" value="{{ user.full_name if user else '' }}">
+                <button class="btn-solid-green w-100" style="padding: 0.5rem; margin-bottom: 0.5rem;" onclick="updateProfile()">Update Profile</button>
+                <a href="/forgot-password" class="btn-solid-green w-100" style="display:block; text-align:center; padding: 0.5rem; margin-bottom: 1rem;">Forgot / Update Password?</a>
+                <hr>
+                <a href="/logout" class="btn-solid-green w-100" style="display:block; text-align:center; padding: 0.5rem;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div style="padding: 2rem 5%; text-align: center;">
+        <h2 style="color: #111; margin-bottom: 1rem; font-size: 2rem;">Search Results</h2>
+    </div>
+
+    <section class="section" style="background: #fff; padding-top: 0;">
+        <div class="search-results-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; padding: 0 5%;">
+            
+            {% set all_cars = spinny_data + olx_data + cars24_data %}
+            
+            {% if all_cars|length == 0 %}
+                <div class="white-container" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                    <h3 style="color: #111;">No matching cars found via API</h3>
+                    <p style="color: #666; margin-top: 1rem;">Please try a different search criteria.</p>
+                </div>
+            {% else %}
+                {% for car in all_cars %}
+                <a href="{{ car.listingurl }}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none;">
+                    <div class="auto-card">
+                        <div class="auto-card-img-wrapper">
+                            <div class="auto-card-img" style="{% if car.imageurl %}background-image: url('{{ car.imageurl }}');{% else %}background: linear-gradient(45deg, #2a2a2a, #111);{% endif %}"></div>
+                            {% if car.source %}
+                            <span class="auto-card-badge">{{ car.source }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="auto-card-body">
+                            <h3 class="auto-card-title">{{ car.carname }}</h3>
+                            <p style="color: #666; font-size: 0.85rem; margin-bottom: 1rem;"><i class="fa-solid fa-location-dot"></i> {{ car.location|title }}</p>
+                            
+                            <div class="auto-card-details-grid">
+                                <div><i class="fa-regular fa-calendar"></i><br>{{ car.year }}</div>
+                                <div><i class="fa-solid fa-gauge-high"></i><br>{{ car.kilometersdriven }} km</div>
+                                <div><i class="fa-solid fa-gas-pump"></i><br>{{ car.fueltype }}</div>
+                            </div>
+                            
+                            <div class="auto-card-price-row">
+                                <div class="auto-card-price">₹ {{ car.price }}</div>
+                                <span class="btn-solid-green" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+        <div class="text-center mt-3" style="margin-top: 3rem;">
+            <a href="/landing-page#search" class="btn-solid-green">Search Again</a>
+        </div>
+    </section>
+
+    <footer class="solid-footer">
+        <p>AutoValue | All Rights Reserved &copy; 2026</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
