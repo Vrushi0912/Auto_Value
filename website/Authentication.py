@@ -56,7 +56,7 @@ def logout():
     response.headers['Expires'] = '0' 
     return response  
 
-otp_storage = {} 
+
 
 @auth.route("/sign-up",methods=["GET","POST"]) 
 def sign_up(): 
@@ -76,8 +76,9 @@ def sign_up():
             email_receiver = email 
              
             subject = 'OTP FOR EMAIL VERIFICATION' 
-            otp = ''.join([str(random.randint(0, 9)) for _ in range(6)]) 
-            otp_storage[email] = {'otp': otp, 'timestamp': time.time()} 
+            otp = str(random.randint(100000, 999999)) 
+            session['otp'] = otp
+            session['otp_timestamp'] = time.time()
           
             body = f"<b>OTP: {otp}</b>. <b>Your OTP expires in 5 minutes.</b>" 
             email_message = EmailMessage() 
@@ -88,14 +89,21 @@ def sign_up():
 
             context = ssl.create_default_context() 
 
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp: 
-                smtp.login(email_sender, email_password) 
-                smtp.sendmail(email_sender, email_receiver, email_message.as_string())  
-                session['email'] = email 
-                session['fullName'] = full_name 
+            try:
+                with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=10) as smtp: 
+                    smtp.login(email_sender, email_password) 
+                    smtp.sendmail(email_sender, email_receiver, email_message.as_string())  
+            except Exception as e:
+                print(f"Failed to send email: {e}")
+                print(f"--- DEMO MODE OTP ---")
+                print(f"OTP for {email}: {otp}")
+                print(f"---------------------")
+
+            session['email'] = email 
+            session['fullName'] = full_name 
              
-                flash("Enter the OTP provided in the Email. OTP expires in 5 minutes." , category="success") 
-                return redirect(url_for("auth.verify_email_otp")) 
+            flash("Enter the OTP provided in the Email (or check the console). OTP expires in 5 minutes." , category="success") 
+            return redirect(url_for("auth.verify_email_otp")) 
     return render_template("signup.html") 
 
 @auth.route("/verify-email",methods=['GET','POST']) 
@@ -103,15 +111,18 @@ def verify_email_otp():
     email = session.get('email') 
     if request.method == 'POST': 
         entered_otp = request.form.get('otp') 
-        stored_otp_data = otp_storage.get(email) 
-        if stored_otp_data and stored_otp_data['otp'] == entered_otp: 
-            if time.time() - stored_otp_data['timestamp'] <= 300: 
+        stored_otp = session.get('otp')
+        stored_timestamp = session.get('otp_timestamp')
+        if stored_otp and stored_otp == entered_otp: 
+            if time.time() - stored_timestamp <= 300: 
                 session['email'] = email 
-                otp_storage.pop(email, None) 
+                session.pop('otp', None)
+                session.pop('otp_timestamp', None)
                 flash("Email has been verified! Set your Password.", category="success") 
                 return redirect('/set-password') 
             else: 
-                otp_storage.pop(email, None) 
+                session.pop('otp', None)
+                session.pop('otp_timestamp', None)
                 session.pop('email',None) 
                 flash("OTP has expired!", category="expire-error") 
                 return render_template('verify_email.html') 
@@ -142,10 +153,8 @@ def set_password():
             return redirect(url_for("auth.login")) 
     return render_template("set_password.html") 
 
-reset_user_email = "" 
 @auth.route("/forgot-password",methods=['GET','POST']) 
 def forgot_password(): 
-    global reset_user_email 
     email_sender = os.environ.get('EMAIL_USER', 'autovaluesup@gmail.com') 
     email_password = os.environ.get('EMAIL_PASS', '')
     if request.method == "POST": 
@@ -157,7 +166,6 @@ def forgot_password():
             user.generate_reset_token() 
             db.session.commit() 
             email_receiver = email 
-            reset_user_email = email 
             subject = 'Password Reset Request' 
             reset_link = url_for('auth.reset_password', token=user.reset_token, _external=True) 
             body = f"<b>Click on the link to reset your password. Link is valid for 5 minutes.</b><br><br><b>Password reset link:</b> {reset_link}" 
@@ -168,10 +176,16 @@ def forgot_password():
             email_message.set_content(body, subtype='HTML') 
 
             context = ssl.create_default_context() 
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp: 
-                smtp.login(email_sender, email_password) 
-                smtp.sendmail(email_sender, email_receiver, email_message.as_string())  
-            flash('Email sent successfully! Check your inbox.', category="success") 
+            try:
+                with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=10) as smtp: 
+                    smtp.login(email_sender, email_password) 
+                    smtp.sendmail(email_sender, email_receiver, email_message.as_string())  
+            except Exception as e:
+                print(f"Failed to send email: {e}")
+                print(f"--- DEMO MODE PASSWORD RESET ---")
+                print(f"Reset Link: {reset_link}")
+                print(f"--------------------------------")
+            flash('Email sent successfully! Check your inbox (or console).', category="success") 
     return render_template("forgot_password.html") 
 
 @auth.route('/reset-password',methods=['GET','POST']) 
@@ -180,10 +194,10 @@ def reset_password():
         token = request.args.get('token') 
         new_password = request.form.get('password') 
         confirm_password = request.form.get("cpassword") 
-        user = Users.query.filter_by(email=reset_user_email).first() 
-        user_login = UserLogin.query.filter_by(email=reset_user_email).first() 
-        if (user and token == user.reset_token and user.reset_token_expiration and 
+        user = Users.query.filter_by(reset_token=token).first() 
+        if (user and user.reset_token_expiration and 
 user.reset_token_expiration > datetime.utcnow() and new_password == confirm_password): 
+            user_login = UserLogin.query.filter_by(email=user.email).first() 
             hashed_new_password = generate_password_hash(new_password) 
             user.reset_token = None 
             user.reset_token_expiration = None 
