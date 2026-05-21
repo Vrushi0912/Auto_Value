@@ -35,5 +35,3 @@ venv.bak/
 instance/
 website/*.db
 
-# Large scraped assets
-website/static/car_images/
